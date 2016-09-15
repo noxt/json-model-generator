@@ -1,0 +1,97 @@
+{%- macro swiftType(property) -%}
+
+  {%- if property.currentType == "integer" -%}Int{%- endif -%}
+  {%- if property.currentType == "string" -%}String{%- endif -%}
+  {%- if property.currentType == "boolean" -%}Bool{%- endif -%}
+  {%- if property.currentType == "number" -%}Decimal{%- endif -%}
+  {%- if property.currentType == "array" -%}[{{ swiftType(property.itemField) }}]{%- endif -%}
+  {%- if property.currentType == "object" -%}{{ property.typeInfo }}{%- endif -%}
+  {%- if property.currentType == "enum" -%}{{ property.typeInfo }}{%- endif -%}
+
+{%- endmacro -%}
+
+
+//
+//  {{ model.name }}.swift
+//  {{ header.projectName }}
+//
+//  This file has been generated, modify it at your own risks!
+//  Copyright © {{ header.copyright }}. All rights reserved.
+//
+
+import Foundation
+
+
+{% if model.description -%}
+// {{ model.description }}
+{% endif -%}
+public struct {{ model.name }}: JSONInitializableProtocol {
+{% for property in model.properties -%}
+  {%- if property.currentType == "enum" %}
+  public enum {{ property.typeInfo }}: String {
+  {%- for caseValue in property.values %}
+    case {{ caseValue.name }} = "{{ caseValue.value }}"
+  {%- endfor %}
+  }
+  {% endif -%}
+{%- endfor -%}
+
+{%- for property in model.properties -%}
+  {%- if property.title %}
+  // {{ property.title }}
+  {%- endif %}
+  public var {{ property.name }}: {{ swiftType(property) }}{{ "!" if property.isRequired else "?" }}
+{% endfor %}
+
+  // MARK: - Init
+  public init?(json: [String: AnyObject]) {
+  {%- for property in model.properties %}
+    {% if not property.isRef -%}
+      {{ property.name }} = json["{{ property.key }}"] as{{ "!" if property.isRequired else "?" }} {{ swiftType(property) }}
+    {%- endif -%}
+
+    {%- if property.isRequired -%}
+
+      {%- if property.currentType == "enum" -%}
+        {{ property.name }} = {{ property.typeInfo }}(rawValue: json["{{ property.key }}"] as! String)!
+      {%- endif -%}
+
+      {%- if property.currentType == "object" -%}
+        {{ property.name }} = {{ property.typeInfo }}(json: json["{{ property.key }}"] as! [String: AnyObject])!
+      {%- endif -%}
+
+      {%- if property.currentType == "array" -%}
+        {%- if not property.itemField.isRef -%}
+          {{ property.name }} = json["{{ property.key }}"] as! [{{ swiftType(property.itemField) }}]
+        {%- else -%}
+          {{ property.name }} = (json["{{ property.key }}"] as! [[String: AnyObject]]).map { {{ swiftType(property.itemField) }}(json: $0)! }
+        {%- endif -%}
+      {%- endif -%}
+
+    {%- else -%}
+
+      {%- if property.currentType == "enum" -%}
+    if let {{ property.name }}RawValue = json["{{ property.key }}"] as? String {
+      {{ property.name }} = {{ property.typeInfo }}(rawValue: {{ property.name }}RawValue)
+    }
+      {%- endif -%}
+
+      {%- if property.currentType == "object" -%}
+    if let {{ property.name }}Dict = json["{{ property.key }}"] as? [String: AnyObject] {
+      {{ property.name }} = {{ property.typeInfo }}(json: {{ property.name }}Dict)
+    }
+      {%- endif -%}
+
+      {%- if property.currentType == "array" -%}
+        {%- if not property.itemField.isRef -%}
+          {{ property.name }} = json["{{ property.key }}"] as? [{{ swiftType(property.itemField) }}]
+        {%- else -%}
+          {{ property.name }} = (json["{{ property.key }}"] as? [[String: AnyObject]]).map { {{ swiftType(property.itemField) }}(json: $0)! }
+        {%- endif -%}
+      {%- endif -%}
+
+    {%- endif -%}
+  {%- endfor %}
+  }
+
+}
