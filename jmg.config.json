@@ -1,8 +1,0 @@
-{
-  "input": "data/input",
-  "output": "data/output",
-  "company": "Noxt",
-  "author": "Ivanenko Dmitry",
-  "project": "JSON Model Generator",
-  "lang": "swift"
-}
