@@ -3,7 +3,7 @@
   {%- if property.currentType == "integer" -%}Int{%- endif -%}
   {%- if property.currentType == "string" -%}String{%- endif -%}
   {%- if property.currentType == "boolean" -%}Bool{%- endif -%}
-  {%- if property.currentType == "number" -%}Decimal{%- endif -%}
+  {%- if property.currentType == "number" -%}Double{%- endif -%}
   {%- if property.currentType == "array" -%}[{{ swiftType(property.itemField) }}]{%- endif -%}
   {%- if property.currentType == "object" -%}{{ property.typeInfo }}{%- endif -%}
   {%- if property.currentType == "enum" -%}{{ property.typeInfo }}{%- endif -%}
