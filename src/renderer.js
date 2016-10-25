@@ -96,7 +96,7 @@ function clear(string) {
 function generateKeyName(keyName) {
   var name = _.lowerFirst(clear(keyName));
 
-  if (['class', 'enum', 'struct', 'for', 'type'].indexOf(name) != -1) {
+  if (['class', 'enum', 'struct', 'for', 'type', 'extension'].indexOf(name) != -1) {
     name += 'Name';
   }
 

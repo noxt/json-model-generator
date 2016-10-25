@@ -86,7 +86,7 @@ public struct {{ model.name }}: JSONInitializableProtocol {
         {%- if not property.itemField.isRef -%}
           {{ property.name }} = json["{{ property.key }}"] as? [{{ swiftType(property.itemField) }}]
         {%- else -%}
-          {{ property.name }} = (json["{{ property.key }}"] as? [[String: AnyObject]]).map { {{ swiftType(property.itemField) }}(json: $0)! }
+          {{ property.name }} = (json["{{ property.key }}"] as? [[String: AnyObject]])?.map { {{ swiftType(property.itemField) }}(json: $0)! }
         {%- endif -%}
       {%- endif -%}
 
