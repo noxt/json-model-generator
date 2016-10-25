@@ -38,6 +38,7 @@ export default class SchemaParser {
       var content = fs.readFileSync(file, 'utf8');
       this.parsedJSON[file] = JSON.parse(content);
     } catch (e) {
+      console.log(e);
       console.log('Parsing error: ', e);
     }
   }

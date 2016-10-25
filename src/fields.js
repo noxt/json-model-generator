@@ -92,9 +92,10 @@ export class EnumField extends Field {
     return 'enum';
   }
 
-  constructor(name, title, values) {
+  constructor(name, title, valueType, values) {
     super(name, title);
     this.isRef = true;
+    this.valueType = valueType;
     this.values = values;
     this.currentType = EnumField.typeName;
     this.typeInfo = name;

@@ -12,14 +12,18 @@ export class ModelsBuilder {
     this.models = {};
 
     Object.keys(this.jsonByFile).forEach(file => {
-      var json = this.jsonByFile[file];
-      this._buildModel(json, parsePath(file).name);
+      this._buildModel(this.jsonByFile[file], parsePath(file).name);
     });
   }
 
   _buildModel(json, name) {
     if (typeof json != 'object') {
       throw new Error('Invalid object: ' + name);
+    }
+
+    var typeName = name;
+    if (json.hasOwnProperty('id')) {
+      typeName = json['id'].substring(1);
     }
 
     if (json.hasOwnProperty('definitions') && typeof json['definitions'] == 'object') {
@@ -29,7 +33,7 @@ export class ModelsBuilder {
     }
 
     if (json.hasOwnProperty('type') && json['type'] == Fields.ObjectField.typeName) {
-      var newType = new ModelTypeInfo(name, json['title']);
+      var newType = new ModelTypeInfo(typeName, json['title']);
 
       if (json.hasOwnProperty('properties') && typeof json['properties'] == 'object') {
         newType.properties = [];
@@ -42,11 +46,11 @@ export class ModelsBuilder {
         newType.required = json['required'];
       }
 
-      if (this.models.hasOwnProperty(name) && this.models[name].properties.length != newType.properties.length) {
-        throw new Error('Duplicate: ' + name);
+      if (this.models.hasOwnProperty(typeName) && this.models[typeName].properties.length != newType.properties.length) {
+        throw new Error('Duplicate: ' + typeName);
       }
 
-      this.models[name] = newType;
+      this.models[typeName] = newType;
     }
   }
 
@@ -60,7 +64,23 @@ export class ModelsBuilder {
     }
 
     if (json.hasOwnProperty('enum') && Array.isArray(json['enum'])) {
-      return new Fields.EnumField(name, propTitle, json['enum']);
+      if (json.hasOwnProperty('type')) {
+        var typeField;
+        switch (json['type']) {
+          case Fields.IntegerField.typeName:
+            typeField = new Fields.IntegerField(name, propTitle);
+            break;
+          case Fields.StringField.typeName:
+            typeField = new Fields.StringField(name, propTitle);
+            break;
+          default:
+            throw new Error('Invalid enum type');
+        }
+        return new Fields.EnumField(name, propTitle, typeField, json['enum']);
+      } else {
+        console.log(json);
+        throw new Error('Undefined enum type');
+      }
     }
 
     if (json.hasOwnProperty('type')) {

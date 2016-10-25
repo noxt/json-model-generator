@@ -8,20 +8,19 @@ import fs from 'fs';
 import { ObjectField, ArrayField } from './fields';
 
 
-try {
-  var config = JSON.parse(fs.readFileSync('./jmg.config.json', 'utf8'));
-} catch (e) {
-  console.log('Empty Config file ', e);
-}
-
-
+var config = JSON.parse(fs.readFileSync('./jmg.config.json', 'utf8'));
 var parser = new SchemaParser(config['input']);
+
+console.log("Parsing Finished!");
+
 var modelsBuilder = new ModelsBuilder(parser.parsedJSON);
+
+console.log("Building models Finished!");
+
 var renderer = new Renderer(config['output'], config['author'], config['project'], config['company'], config['lang']);
 
 Object.keys(modelsBuilder.models).forEach(modelName => {
   var model = modelsBuilder.models[modelName];
-
 
   Object.keys(model.properties).forEach(propertyIndex => {
     var property = model.properties[propertyIndex];
@@ -36,6 +35,10 @@ Object.keys(modelsBuilder.models).forEach(modelName => {
   });
 });
 
+console.log("Validation Finished!");
+
 Object.keys(modelsBuilder.models).forEach(modelName => {
   renderer.render(modelsBuilder.models[modelName]);
 });
+
+console.log("Done!");
