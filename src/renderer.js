@@ -88,7 +88,7 @@ export default class Renderer {
 
 
 function clear(string) {
-  return string.replace(/^([-_]*)/, '').replace(/[-_]([a-zа-я])/ig, function (all, letter) {
+  return string.replace(/^([-_]*)/, '').replace(/[-_ ]([a-zа-я])/ig, function (all, letter) {
     return letter.toUpperCase();
   });
 }
